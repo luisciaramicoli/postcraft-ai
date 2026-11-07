@@ -37,14 +37,23 @@ export default function PostPreviewModal({ post, onClose, onEdit, canEdit }) {
         <div className="modal-header">
           <div>
             <h2>Pré-visualização do Post no Instagram</h2>
-            <p className="modal-subtitle">Nicho: <strong>{post.nicho}</strong> · Status: {post.status}</p>
+            <p className="modal-subtitle">
+              Nicho: <strong>{post.nicho}</strong> · Status: <span className="status-pill">{post.status}</span>
+            </p>
           </div>
-          <button className="modal-close-btn" onClick={onClose}>&times;</button>
+          <button className="modal-close-btn" onClick={onClose} title="Fechar modal">&times;</button>
         </div>
 
         <div className="modal-preview-body">
           {/* Mockup de Celular / Feed do Instagram */}
           <div className="instagram-phone-frame">
+            {/* Barra superior de status do smartphone */}
+            <div className="phone-notch-bar">
+              <span>9:41</span>
+              <div className="phone-notch-pill"></div>
+              <span>5G 􀛨</span>
+            </div>
+
             <div className="instagram-post-header">
               <div className="instagram-author-info">
                 <div className="instagram-avatar-circle">
@@ -79,10 +88,10 @@ export default function PostPreviewModal({ post, onClose, onEdit, canEdit }) {
               {slides.length > 1 && (
                 <>
                   {currentSlideIndex > 0 && (
-                    <button className="carousel-nav-btn prev" onClick={handlePrev}>‹</button>
+                    <button className="carousel-nav-btn prev" onClick={handlePrev} title="Slide anterior">‹</button>
                   )}
                   {currentSlideIndex < slides.length - 1 && (
-                    <button className="carousel-nav-btn next" onClick={handleNext}>›</button>
+                    <button className="carousel-nav-btn next" onClick={handleNext} title="Próximo slide">›</button>
                   )}
                 </>
               )}
@@ -95,6 +104,7 @@ export default function PostPreviewModal({ post, onClose, onEdit, canEdit }) {
                   key={i}
                   className={`dot ${i === currentSlideIndex ? 'active' : ''}`}
                   onClick={() => setCurrentSlideIndex(i)}
+                  title={`Ir para slide ${i + 1}`}
                 />
               ))}
             </div>
@@ -121,13 +131,13 @@ export default function PostPreviewModal({ post, onClose, onEdit, canEdit }) {
 
           {/* Painel Lateral com Informações e Ações */}
           <div className="preview-side-panel">
-            <h3>Legenda e Copywriting</h3>
+            <h3>📝 Legenda e Copywriting</h3>
             <div className="caption-text-area">
-              <p style={{ whiteSpace: 'pre-line', fontSize: '14px', lineHeight: '1.6' }}>
+              <p style={{ whiteSpace: 'pre-line', fontSize: '14px', lineHeight: '1.6', margin: 0, color: '#f1f5f9' }}>
                 {post.legenda}
               </p>
               {post.hashtags && (
-                <p style={{ marginTop: '12px', color: '#6366f1', fontSize: '13px' }}>
+                <p style={{ marginTop: '14px', color: '#818cf8', fontSize: '13px', lineHeight: '1.5' }}>
                   {post.hashtags}
                 </p>
               )}
