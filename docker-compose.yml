@@ -9,7 +9,6 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_PASS=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
-      - TMDB_API_KEY=${TMDB_API_KEY}
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET (minimo 16 caracteres)}
       - NODE_ENV=production
       - AUTH_SERVICE_URL=http://auth:3000

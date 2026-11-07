@@ -206,3 +206,87 @@ As seguintes 6 issues compõem o roteiro de implementação para as próximas at
   * Tabela em tempo real com eventos de auditoria capturados pelo Redis Streams.
   * Possibilidade de suspender usuários que violarem termos de uso ou gerarem conteúdo inadequado.
 
+
+
+---
+
+## 🚀 Atividade 10 · Seu Negócio no Ar (Implementação Concluída)
+
+* **URL do Sistema no Ar:** `http://localhost:8218` (mesmo subdomínio da stack de produção)
+* **Status da Stack:** 100% conteinerizada via Docker Compose no Portainer, limites de memória preservados.
+* **Repositório do Produto:** [github.com/luisciaramicoli/postcraft-ai](https://github.com/luisciaramicoli/postcraft-ai)
+
+### 1. Diagrama de Arquitetura de Microsserviços
+
+```mermaid
+flowchart TD
+    subgraph Client["Navegador & Clientes"]
+        U["Usuário Final (Criador / Revisor / Admin)"]
+    end
+
+    subgraph Gateway["Gateway & Aplicação Web (Porta 8218)"]
+        FE["Frontend SPA (React + Vite)"]
+        BE["Backend API Gateway (Express / Node.js)"]
+        FE <-->|REST API + HttpOnly Cookies| BE
+    end
+
+    U <-->|HTTPS| Gateway
+
+    subgraph Microservices["Microsserviços Internos (Docker Network)"]
+        AUTH["auth-service (Porta 3000 interna)\n• JWT HS256\n• RBAC (criador, revisor, admin)\n• Password Reset (Mailtrap)"]
+        LOGS["log-service (Porta 3000 interna)\n• CloudEvents v1.0 / ECS\n• NIST SP 800-92"]
+    end
+
+    subgraph DataStorage["Camada de Dados & Persistência"]
+        MDB[("MariaDB Relacional\n• marcas\n• posts\n• templates\n• usuarios")]
+        RDS[("Redis In-Memory\n• audit_events (Redis Streams)")]
+        MINIO[("MinIO Object Storage S3\n• logos de marcas\n• imagens de posts\n• avatares")]
+    end
+
+    subgraph Observability["Observabilidade & Métricas"]
+        PROM["Prometheus (/metrics)"]
+        GRAF["Grafana Dashboards"]
+        PROM --> GRAF
+    end
+
+    subgraph External["Serviços Externos"]
+        STRIPE["Stripe Billing (Creator Pro Checkout & Webhooks)"]
+    end
+
+    BE <-->|HTTP interno /authorize| AUTH
+    BE -->|HTTP lote de eventos| LOGS
+    AUTH -->|HTTP lote de eventos| LOGS
+    BE <-->|SQL Queries| MDB
+    AUTH <-->|SQL Queries| MDB
+    LOGS <-->|XADD / XREAD| RDS
+    BE <-->|S3 API| MINIO
+    BE <-->|Stripe SDK| STRIPE
+    PROM -.->|Scrape| BE
+    PROM -.->|Scrape| AUTH
+    PROM -.->|Scrape| LOGS
+```
+
+### 2. Scripts de Migração e Seed do Banco de Dados
+Os scripts SQL versionados estão localizados na pasta `db/`:
+* [db/001_dominio.sql](db/001_dominio.sql) — Criação das tabelas `marcas`, `posts`, `templates` e expurgo de tabelas legadas.
+* [db/002_seed.sql](db/002_seed.sql) — Inserção de templates de alta conversão para Nutrição, Direito e Fitness.
+
+### 3. Matriz de Permissões RBAC (Enforcement Centralizado no Backend)
+
+| Ação / Recurso | Método & Rota | Papel `revisor` | Papel `criador` | Papel `admin` |
+|---|---|:---:|:---:|:---:|
+| **Listar posts próprios** | `GET /api/posts` | ✅ Permitido | ✅ Permitido | ✅ Permitido (vê todos) |
+| **Detalhar post próprio** | `GET /api/posts/:id` | ✅ Permitido | ✅ Permitido | ✅ Permitido |
+| **Detalhar post de outro usuário** | `GET /api/posts/:id` | ❌ **403 Forbidden** | ❌ **403 Forbidden** | ✅ Permitido |
+| **Criar novo post com IA** | `POST /api/posts/generate` | ❌ **403 Forbidden** | ✅ Permitido | ✅ Permitido |
+| **Editar post existente** | `PUT /api/posts/:id` | ❌ **403 Forbidden** | ✅ Permitido (se dono) | ✅ Permitido |
+| **Excluir post** | `DELETE /api/posts/:id` | ❌ **403 Forbidden** | ✅ Permitido (se dono) | ✅ Permitido |
+| **Upload de Logo da Marca** | `POST /api/brands/:id/logo` | ❌ **403 Forbidden** | ✅ Permitido (se dono) | ✅ Permitido |
+| **Acessar Trilha de Auditoria** | `GET /api/logs` | ❌ **403 Forbidden** | ❌ **403 Forbidden** | ✅ Permitido |
+
+### 4. Contas de Demonstração (Seed)
+Para facilitar os testes do avaliador:
+* **Admin:** `admin@postcraft.ai` / Senha: `Password123!` (Papel: `admin`)
+* **Criador:** `criador@postcraft.ai` / Senha: `Password123!` (Papel: `criador`)
+* **Revisor:** `revisor@postcraft.ai` / Senha: `Password123!` (Papel: `revisor`)
+*(Novas contas podem ser criadas livremente na Landing Page selecionando o papel desejado).*

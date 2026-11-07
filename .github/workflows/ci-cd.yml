@@ -68,8 +68,7 @@ jobs:
           DB_HOST: localhost
           DB_USER: root
           DB_PASSWORD: ci_test_password
-          DB_NAME: ci_cinecloud
-          TMDB_API_KEY: ci_tmdb_dummy_key
+          DB_NAME: ci_postcraft
         run: |
           echo "::group::Smoke Integration Test"
           # Sobe dependências e serviços de observabilidade
