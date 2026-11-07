@@ -7,7 +7,7 @@
 
 services:
   app:
-    image: ghcr.io/${GHCR_OWNER:-luisciaramicoli}/cinecloud-app:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GHCR_OWNER:-luisciaramicoli}/postcraft-app:${IMAGE_TAG:-latest}
     ports:
       - "${PORT_APP:-8218}:3000"
     environment:
@@ -50,7 +50,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   auth:
-    image: ghcr.io/${GHCR_OWNER:-luisciaramicoli}/cinecloud-auth:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GHCR_OWNER:-luisciaramicoli}/postcraft-auth:${IMAGE_TAG:-latest}
     environment:
       - DB_HOST=${DB_HOST}
       - DB_USER=${DB_USER}
@@ -79,7 +79,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   log-service:
-    image: ghcr.io/${GHCR_OWNER:-luisciaramicoli}/cinecloud-log-service:${IMAGE_TAG:-latest}
+    image: ghcr.io/${GHCR_OWNER:-luisciaramicoli}/postcraft-log-service:${IMAGE_TAG:-latest}
     environment:
       - JWT_SECRET=${JWT_SECRET:?defina JWT_SECRET (minimo 16 caracteres)}
       - NODE_ENV=production
