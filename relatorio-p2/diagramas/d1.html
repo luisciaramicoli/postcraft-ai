@@ -1,0 +1,28 @@
+<!doctype html><meta charset=utf-8><body style="margin:0;background:#fff;font-family:Arial;width:820px">
+<svg width="820" height="520" viewBox="0 0 820 520" xmlns="http://www.w3.org/2000/svg" font-family="Arial">
+<defs><marker id="a" markerWidth="9" markerHeight="7" refX="8" refY="3.5" orient="auto"><path d="M0,0 L9,3.5 L0,7 z" fill="#445"/></marker>
+<style>.b{fill:#e8f0fb;stroke:#2c5c9a;stroke-width:1.5}.o{fill:#fdeccf;stroke:#b96f1f;stroke-width:1.5}.g{fill:#eee;stroke:#666;stroke-width:1.5}.t{font-size:15px;font-weight:bold;fill:#182233;text-anchor:middle}.s{font-size:12px;fill:#334;text-anchor:middle}.l{font-size:13px;fill:#223;font-weight:bold}.ln{stroke:#445;stroke-width:1.5;fill:none;marker-end:url(#a)}</style></defs>
+<rect x="140" y="8" width="560" height="504" rx="10" fill="#f6f9fd" stroke="#2c5c9a" stroke-dasharray="6 4" stroke-width="1.5"/>
+<text x="152" y="28" class="l" fill="#2c5c9a">Rede interna do Docker</text>
+<rect class="o" x="8" y="60" width="115" height="52" rx="7"/><text x="65" y="83" class="t">Stripe</text><text x="65" y="101" class="s">externo</text>
+<rect class="o" x="8" y="230" width="115" height="52" rx="7"/><text x="65" y="253" class="t">Navegador</text><text x="65" y="271" class="s">usuário final</text>
+<rect class="o" x="8" y="430" width="115" height="52" rx="7"/><text x="65" y="453" class="t">Gemini API</text><text x="65" y="471" class="s">externo</text>
+<rect class="b" x="155" y="222" width="130" height="68" rx="7"/><text x="220" y="247" class="t">app</text><text x="220" y="265" class="s">React + Express</text><text x="220" y="280" class="s">host :8218</text>
+<rect class="b" x="350" y="52" width="140" height="56" rx="7"/><text x="420" y="76" class="t">auth-service</text><text x="420" y="94" class="s">login e papéis</text>
+<rect class="b" x="350" y="230" width="140" height="52" rx="7"/><text x="420" y="253" class="t">log-service</text><text x="420" y="271" class="s">auditoria</text>
+<rect class="b" x="350" y="430" width="140" height="52" rx="7"/><text x="420" y="453" class="t">MinIO</text><text x="420" y="471" class="s">imagens e avatares</text>
+<rect class="b" x="550" y="230" width="135" height="52" rx="7"/><text x="617" y="253" class="t">Redis</text><text x="617" y="271" class="s">Streams, 256 MB</text>
+<rect class="b" x="155" y="380" width="130" height="62" rx="7"/><text x="220" y="404" class="t">Prometheus</text><text x="220" y="424" class="t">+ Grafana</text>
+<rect class="g" x="708" y="130" width="104" height="70" rx="7"/><text x="760" y="156" class="t">MariaDB</text><text x="760" y="174" class="s">fora da stack</text><text x="760" y="189" class="s">via DB_HOST</text>
+<path class="ln" d="M123,256 L155,256"/><text x="58" y="215" class="l">① HTTPS</text>
+<path class="ln" d="M123,95 L190,222"/><text x="94" y="165" class="l">②</text>
+<path class="ln" d="M205,290 C190,360 120,380 90,430"/><text x="130" y="360" class="l">③</text>
+<path class="ln" d="M285,232 L350,92"/><text x="298" y="150" class="l">④</text>
+<path class="ln" d="M285,256 L350,256"/><text x="308" y="248" class="l">⑤</text>
+<path class="ln" d="M285,282 L350,440"/><text x="298" y="370" class="l">⑥</text>
+<path class="ln" d="M490,256 L550,256"/>
+<path class="ln" d="M285,235 L708,175"/><text x="560" y="190" class="l">⑦ SQL</text>
+<path class="ln" d="M490,80 L708,140"/><text x="590" y="100" class="l">⑦ SQL</text>
+<path class="ln" d="M220,380 L220,290"/><text x="228" y="338" class="l">⑧</text>
+</svg>
+<div style="font:12.5px Arial;padding:4px 8px;color:#223;line-height:1.45">Laranja: externo ou público. Azul: Compose, só na rede interna. Cinza: banco fora do Compose. ① navegador → app pelo domínio · ② Stripe → app (webhook) · ③ app → Gemini · ④ app → auth-service (papel) · ⑤ app → log-service → Redis · ⑥ app → MinIO · ⑦ app e auth → MariaDB · ⑧ Prometheus coleta métricas do app; Grafana lê o Prometheus.</div>
