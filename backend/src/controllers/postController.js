@@ -218,11 +218,44 @@ exports.createPost = async (req, res) => {
 };
 
 // 4. Gerar post completo com IA (Requer papel criador ou admin)
+const FREE_MONTHLY_LIMIT = 3;
+
+// Plano gratuito: no máximo FREE_MONTHLY_LIMIT posts gerados por mês (premium é ilimitado).
+// A verificação lê o campo premium no banco (atualizado pelo webhook do Stripe), não o JWT.
+async function freeQuotaExceeded(userId) {
+  const [users] = await db.execute('SELECT premium FROM usuarios WHERE id = ?', [userId]);
+  if (users[0] && users[0].premium) return false;
+  const [rows] = await db.execute(
+    "SELECT COUNT(*) AS total FROM posts WHERE usuario_id = ? AND status IN ('gerado', 'publicado') AND criado_em >= DATE_FORMAT(NOW(), '%Y-%m-01')",
+    [userId]
+  );
+  return Number(rows[0].total) >= FREE_MONTHLY_LIMIT;
+}
+
 exports.generatePostAI = async (req, res) => {
   const { tema, nicho, formato, tom_voz, marca_id } = req.body;
 
   if (!tema || typeof tema !== 'string' || !tema.trim()) {
     return res.status(400).json({ error: 'Tema do post é obrigatório para a IA' });
+  }
+
+  try {
+    if (await freeQuotaExceeded(req.userId)) {
+      logFromReq(req, {
+        type: 'audit.security.quota_exceeded',
+        action: 'limite_gratuito_atingido',
+        status: 'denied',
+        target: { type: 'route', method: 'POST', path: '/api/posts/generate' },
+        metadata: { limite_mensal: FREE_MONTHLY_LIMIT }
+      });
+      return res.status(403).json({
+        error: `Limite do plano gratuito atingido: ${FREE_MONTHLY_LIMIT} posts gerados por mês. Assine o Creator Pro para gerar sem limite.`,
+        codigo: 'limite_gratuito_atingido',
+        limite_mensal: FREE_MONTHLY_LIMIT
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: 'Erro ao verificar o limite do plano' });
   }
 
   let backgroundKey;
