@@ -290,3 +290,12 @@ Para facilitar os testes do avaliador:
 * **Criador:** `criador@postcraft.ai` / Senha: `Password123!` (Papel: `criador`)
 * **Revisor:** `revisor@postcraft.ai` / Senha: `Password123!` (Papel: `revisor`)
 *(Novas contas podem ser criadas livremente na Landing Page selecionando o papel desejado).*
+
+
+## Relatório bimestral P2 — ISW055
+
+- [PDF individual — Luis Gustavo Bonfim Ciaramicoli](docs/P2_ISW055_Luis_Ciaramicoli.pdf)
+- [Fonte editável e evidências](relatorio-p2/relatorio.html)
+- Professor: [Allan Siriani](https://github.com/siriani).
+
+Levantamento em 12/11/2026: o relatório registra atrasos, validação parcial da publicação e atividade 11 ainda não entregue, sem atribuir resultados não comprovados.
