@@ -1,6 +1,7 @@
 const db = require('../config/db');
 const { logFromReq } = require('../services/loggerService');
-const { uploadBuffer } = require('../services/storageService');
+const { uploadBuffer, uploadAvatar, removeAvatar } = require('../services/storageService');
+const { generatePost } = require('../services/geminiService');
 
 // Validador de ID numérico positivo seguro
 const toPositiveInt = (v) => {
@@ -224,14 +225,16 @@ exports.generatePostAI = async (req, res) => {
     return res.status(400).json({ error: 'Tema do post é obrigatório para a IA' });
   }
 
+  let backgroundKey;
   try {
-    // Gera o conteúdo estruturado do post
-    const generated = generateMockAIContent({ tema, nicho, formato, tom_voz });
+    const { post: generated, image, imageWarning } = await generatePost({ tema, nicho, formato, tom_voz });
+    if (image) backgroundKey = await uploadAvatar(req.userId, image.buffer, image.mimeType);
+    const imagemUrl = backgroundKey ? `/storage/avatars/${backgroundKey}` : null;
     const cleanMarcaId = toPositiveInt(marca_id) || null;
 
     const [result] = await db.execute(
-      `INSERT INTO posts (usuario_id, marca_id, titulo, nicho, formato, slides_json, legenda, hashtags, status)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO posts (usuario_id, marca_id, titulo, nicho, formato, slides_json, legenda, hashtags, status, imagem_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         req.userId,
         cleanMarcaId,
@@ -241,11 +244,13 @@ exports.generatePostAI = async (req, res) => {
         JSON.stringify(generated.slides),
         generated.legenda,
         generated.hashtags,
-        'gerado'
+        'gerado',
+        imagemUrl
       ]
     );
 
     const newPostId = result.insertId;
+    backgroundKey = null;
 
     logFromReq(req, {
       type: 'business.ai.post_generated',
@@ -255,14 +260,17 @@ exports.generatePostAI = async (req, res) => {
 
     res.status(201).json({
       message: 'Post gerado com IA com sucesso',
+      warning: imageWarning,
       post: {
         id: newPostId,
-        ...generated
+        ...generated,
+        imagem_url: imagemUrl
       }
     });
   } catch (error) {
-    console.error('Erro ao gerar post com IA:', error);
-    res.status(500).json({ error: 'Falha ao processar geração com IA' });
+    if (backgroundKey) await removeAvatar(backgroundKey);
+    console.error('Erro ao gerar post com IA:', error.message);
+    res.status(error.publicStatus || 500).json({ error: error.publicMessage || 'Falha ao processar geração com IA' });
   }
 };
 
