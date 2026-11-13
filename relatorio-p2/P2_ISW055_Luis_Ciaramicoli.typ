@@ -338,12 +338,12 @@ Foram feitas as extras: health checks nos containers, métricas Prometheus com p
   11, "SaaS completo — planos, limites e assinatura com Stripe",
   descricao: "Planos recorrentes, checkout de assinatura, webhooks atualizando o plano, portal do cliente, limites por plano na API e painel admin.",
   planejada: "13/11/2026",
-  realizada: "pendente (commit e issue de entrega); funcionamento comprovado em 12/11/2026 22:28",
-  situacao: "não entregue",
+  realizada: "12/11/2026 22:43",
+  situacao: "entregue",
   evidencia: "GitHub — issue de entrega (@siriani) + commit + prints da assinatura com o cartão 4242, do Stripe em modo de teste, do webhook e do limite bloqueando",
-  url: "",
+  url: "https://github.com/luisciaramicoli/postcraft-ai/issues/10",
 )[
-  *O que foi feito.* Implementei o limite do plano gratuito no servidor: três posts gerados por mês, verificados antes de chamar o Gemini, com 403 e o código `limite_gratuito_atingido`; usuários premium não têm limite. O limite é coberto por teste automatizado (`tests/quota.test.js`, 3 testes). Em 12/11/2026, entre 22:23 e 22:28, executei o ciclo completo de assinatura numa conta de teste, com o Stripe em modo de teste e o cartão 4242: (1) no plano gratuito, a quarta geração foi bloqueada; (2) o checkout hospedado do Stripe aceitou o cartão 4242; (3) o webhook ativou o plano em cerca de 1 segundo e a quarta geração foi aceita; (4) o cancelamento da assinatura, às 22:28:06, devolveu a conta ao plano gratuito em cerca de 3 segundos e o bloqueio voltou. O teste rodou numa instância local do app, com o código que contém a cota, ainda sem commit; o webhook foi entregue pelo Stripe ao domínio público, e o app público gravou no banco compartilhado, o que é uma inferência pelo comportamento observado.
+  *O que foi feito.* Implementei o limite do plano gratuito no servidor: três posts gerados por mês, verificados antes de chamar o Gemini, com 403 e o código `limite_gratuito_atingido`; usuários premium não têm limite. O limite é coberto por teste automatizado (`tests/quota.test.js`, 3 testes). Em 12/11/2026, entre 22:23 e 22:28, executei o ciclo completo de assinatura numa conta de teste, com o Stripe em modo de teste e o cartão 4242: (1) no plano gratuito, a quarta geração foi bloqueada; (2) o checkout hospedado do Stripe aceitou o cartão 4242; (3) o webhook ativou o plano em cerca de 1 segundo e a quarta geração foi aceita; (4) o cancelamento da assinatura, às 22:28:06, devolveu a conta ao plano gratuito em cerca de 3 segundos e o bloqueio voltou. O teste rodou numa instância local do app, com o código do commit `f88b14000720` (12/11/2026 22:42); o webhook foi entregue pelo Stripe ao domínio público, e o app público gravou no banco compartilhado, o que é uma inferência pelo comportamento observado.
 
   #evid([Atividade 11 — passo 1: perfil no plano gratuito, antes da assinatura (12/11/2026 22:26)], "prints/11-perfil-gratuito.png", largura: 80%)
   #evid([Atividade 11 — passo 1: quarta geração do mês bloqueada na interface (12/11/2026 22:26)], "prints/11-limite-ui.png", largura: 80%)
@@ -356,7 +356,7 @@ Foram feitas as extras: health checks nos containers, métricas Prometheus com p
   #evid([Atividade 11 — passo 4: geração bloqueada novamente após o cancelamento (12/11/2026 22:28)], "prints/11-limite-apos-cancelamento.png", largura: 80%)
   #evid([Atividade 11 — teste automatizado do limite: `freeQuotaExceeded` e resultado de `tests/quota.test.js` (banco e Gemini simulados)], "prints/atividade-11-limite.png")
 
-  *Dificuldades e como foram resolvidas.* A atividade consta como não entregue porque o commit com o limite de cota e a issue de entrega ainda não foram registrados. Também não estão prontos o portal do cliente (o cancelamento foi feito pela API do Stripe), o tratamento de eventos repetidos, o painel admin de assinaturas e a publicação do limite no site público, que ainda roda a imagem anterior, sem a cota. Num teste anterior, o checkout do Stripe retornou erro de credencial expirada; o erro não se repetiu em 12/11 e a causa não foi investigada. O Stripe exibe o nome de negócio ClimaAgro porque a conta é compartilhada com outro projeto.
+  *Dificuldades e como foram resolvidas.* O commit do limite de cota (`f88b14000720`, 22:42) e a issue de entrega (número 10, aberta às 22:43, 01:43 UTC de 13/11) foram registrados em 12/11/2026, um dia antes do prazo, depois dos testes do ciclo. Não estão prontos o portal do cliente (o cancelamento foi feito pela API do Stripe), o tratamento de eventos repetidos, o painel admin de assinaturas e a verificação de que o site público já executa o commit com a cota: a issue 8 registra a stack no commit `32b09ef`, anterior à cota, e não confirmei a atualização. Num teste anterior, o checkout do Stripe retornou erro de credencial expirada; o erro não se repetiu em 12/11 e a causa não foi investigada. O Stripe exibe o nome de negócio ClimaAgro porque a conta é compartilhada com outro projeto.
 ]
 
 // ============================================================
@@ -366,7 +366,7 @@ Neste bimestre aprendi a transformar um catálogo em um produto com cobrança, a
 
 Faria diferente em três pontos: registraria a entrega de cada atividade no dia, com issue e commit, em vez de acumular; trataria a idempotência do webhook e o portal do cliente desde o primeiro desenho da assinatura; e guardaria os prints a cada marco, em vez de reconstruí-los depois.
 
-Para ser um produto de verdade, o PostCraft AI ainda precisa de: commit do limite de cota e da issue de entrega da atividade 11; publicação dessa versão no site público; portal do cliente e deduplicação de eventos de webhook; tratamento de falha de pagamento; troca dos segredos padrão do Compose de produção e HTTPS com cookie seguro; limites de memória nos containers; e testes de isolamento com mais de uma conta e papel.
+Para ser um produto de verdade, o PostCraft AI ainda precisa de: publicação da versão com o limite de cota no site público e a conferência de que ela está no ar; portal do cliente e deduplicação de eventos de webhook; tratamento de falha de pagamento; troca dos segredos padrão do Compose de produção e HTTPS com cookie seguro; limites de memória nos containers; e testes de isolamento com mais de uma conta e papel.
 
 // ============================================================
 = Declaração de autoria
